@@ -1,0 +1,61 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Swagger watsonx.ai WD WA Extensions",
+    "description": "This is a Swagger Connecting WA to a wx.ai watson discovery using Cloud Function",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://us-south.functions.appdomain.cloud",
+      "description": "Dallas, USA"
+    }
+  ],
+  "paths": {
+    "/api/v1/web/XXX-XXXXX-XXXX/default/myfunctionname.json": {
+      "post": {
+        "parameters": [],
+        "summary": "Get LLM query result",
+        "description": "Get bus scheduled time from Db2",
+        "operationId": "getLLMQuery",
+        "requestBody": {
+          "description": "Payload to get LLM query result.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_question": {
+                    "type": "string",
+                    "description": "question given by the user"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "output": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Invalid input."
+          }
+        }
+      }
+    }
+  }
+}
