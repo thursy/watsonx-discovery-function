@@ -1,3 +1,4 @@
+import os
 import json
 import math
 import pandas as pd
@@ -11,7 +12,21 @@ from ibm_watson_machine_learning.metanames import GenTextParamsMetaNames as GenP
 def main(params):
     user_question = params['user_question']
 
-    authenticator = IAMAuthenticator(API_KEY_WD) #API key before launch Wx Discovery >> Manage
+    #Creds related to watson discovery
+    API_KEY_WD = os.environ['API_KEY_WD'] #API key before launch Wx Discovery >> Manage
+    PROJECT_ID_WD = os.environ['PROJECT_ID_WD'] #Get the project ID after launch Wx Discovery >> Integrate and Deploy >> API Information
+
+    #Creds related to watsonx.ai
+    api_key =  os.environ['API_KEY']   #IBM Cloud API Key
+    ibm_cloud_url = "https://us-south.ml.cloud.ibm.com"
+    project_id = os.environ['PROJECT_ID'] #Project ID watsox.ai
+
+    creds = {
+        "url": ibm_cloud_url,
+        "apikey": api_key 
+    }
+    
+    authenticator = IAMAuthenticator(API_KEY_WD) 
     discovery = DiscoveryV2(
         version='2019-04-30',
         authenticator=authenticator
@@ -20,13 +35,12 @@ def main(params):
 
     #discovery.set_disable_ssl_verification(True)
 
-    PROJECT_ID = PROJECT_ID_WD #Get the project ID after launch Wx Discovery >> Integrate and Deploy >> API Information
     ## List Collections ##
-    collections = discovery.list_collections(project_id=PROJECT_ID).get_result()
+    collections = discovery.list_collections(project_id=PROJECT_ID_WD).get_result()
     collection_list = list(pd.DataFrame(collections['collections'])['collection_id'])
 
     query_result = discovery.query(
-        project_id=PROJECT_ID,
+        project_id=PROJECT_ID_WD,
         collection_ids=collection_list,
         natural_language_query=user_question).get_result()
     
@@ -50,7 +64,7 @@ def main(params):
 
     output:"""
 
-    output_stage1 = send_to_watsonxai(prompts=[prompt_stage1])
+    output_stage1 = send_to_watsonxai(prompts=[prompt_stage1], creds=creds, project_id=project_id)
     try:
         passage_index = max(int(json.loads(output_stage1.strip())['passage_number'])-1,0)
         passage_index = min(passage_index,len(text_list)-1)
@@ -74,14 +88,14 @@ def main(params):
 
     answer:"""
 
-    output_stage2 = send_to_watsonxai(prompts=[prompt_stage2], stop_sequences=[])
+    output_stage2 = send_to_watsonxai(prompts=[prompt_stage2], creds=creds, project_id=project_id, stop_sequences=[])
 
     return {"output":str(output_stage2.strip()).replace('\n\n', ' ').replace('*', '<li>')}
 
 
 #==============================HELPER FUNCTION======================================
 
-def send_to_watsonxai(prompts,
+def send_to_watsonxai(prompts, creds, project_id,
                     model_name='meta-llama/llama-2-13b-chat',
                     decoding_method="greedy",
                     max_new_tokens=1000,
@@ -116,15 +130,6 @@ def send_to_watsonxai(prompts,
         GenParams.TEMPERATURE: temperature,
         GenParams.REPETITION_PENALTY: repetition_penalty,
         GenParams.STOP_SEQUENCES: stop_sequences
-    }
-
-    api_key =  IBM_CLOUD_APIKEY   #IBM Cloud API Key
-    ibm_cloud_url = "https://us-south.ml.cloud.ibm.com"
-    project_id = WX_AI_KEY #Project ID watsox.ai
-
-    creds = {
-        "url": ibm_cloud_url,
-        "apikey": api_key 
     }
 
     # Instantiate a model proxy object to send your requests

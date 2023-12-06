@@ -1,0 +1,4 @@
+ibm-watson-machine-learning==1.0.327
+pandas==1.5.3
+ibm-watson
+watson-developer-cloud
