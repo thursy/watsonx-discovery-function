@@ -62,15 +62,15 @@ def main(params):
     context_text = text_list[passage_index][start_offset[passage_index]:min(end_offset[passage_index],len_text)]
 
     # Second prompt
-    format_stage2 = '{"output":}'
+    #format_stage2 = '{"output":}'
     prompt_stage2 = f"""passage: {context_text}
 
     question: {user_question}
 
-    Answer the question only using the passage above as a context. 
-    Compile the answer in an engaging way. Summarize the answer in a concise way.
-    Ensure the answer is written in Bahasa Indonesia correctly.
-    Stop generating any additional information beyond this point.
+    Jawablah pertanyaan hanya dengan menggunakan konteks di atas sebagai dasar. 
+    Susun jawabannya dengan cara yang menarik. Ringkaslah jawaban dengan singkat. 
+    Pastikan jawaban ditulis dengan benar dalam Bahasa Indonesia. 
+    Berhentilah menghasilkan informasi tambahan setelah ini."
 
     answer:"""
 
